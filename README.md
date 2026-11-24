@@ -1,5 +1,9 @@
 # OwlEye 🦉 — See through fake internships.
 
+**Open the live website:** [OwlEye](https://sharmarishabh9134-rgb.github.io/owleye/)
+
+The public Pages version runs offer checks, complaint preparation, platform links, and basic help in your browser. Live domain checks and AI chat require the Python server described below. The repository link itself opens this README; use the website link above to open OwlEye.
+
 Paste an internship offer (email, WhatsApp, offer letter). OwlEye gives a **risk score with reasons** before you apply or pay, helps you **report scams**, and points you to **genuine internship platforms**.
 
 Team **Night Coders** · Bapuji Institute of Engineering and Technology · wHACKiest 2026

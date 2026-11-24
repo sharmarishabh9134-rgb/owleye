@@ -101,6 +101,7 @@
 </header>
 <main>
   <section class="card" id="check" aria-label="Offer details">
+    <p class="demo-notice hidden" id="demoNotice">Hosted demo mode: checks run in your browser. Live domain lookups and AI chat are available when the OwlEye server is running.</p>
     <label for="text">Offer text (email, WhatsApp, Telegram, offer letter)</label>
     <textarea id="text" placeholder="Paste the message here..."></textarea>
     <label for="url">Link (optional)</label>
@@ -208,6 +209,8 @@
 <script>
 const $ = (id) => document.getElementById(id);
 $("year").textContent = new Date().getFullYear();
+const STATIC_DEMO = location.hostname.endsWith("github.io");
+if (STATIC_DEMO) $("demoNotice").classList.remove("hidden");
 const COLORS = { HIGH: "var(--red)", MEDIUM: "var(--amber)", LOW: "var(--green)" };
 let lastScan = null;
 
@@ -225,22 +228,60 @@ function safeLink(a, url) { if (/^https:\/\//.test(url)) a.href = url; a.target 
 
 /* ---------- checker ---------- */
 async function loadSample(name, sender, company) {
-  const r = await fetch("/samples/" + name);
-  $("text").value = await r.text(); $("sender").value = sender; $("company").value = company; $("url").value = "";
+  try {
+    if (STATIC_DEMO) throw new Error("Hosted demo sample");
+    const r = await fetch("/samples/" + name);
+    if (!r.ok) throw new Error("Sample file unavailable");
+    $("text").value = await r.text();
+  } catch {
+    $("text").value = name === "fake_offer.txt"
+      ? "Congratulations! You are selected for a Work From Home Internship. No interview needed. Stipend Rs 45,000 per month. To confirm your seat, pay a refundable registration fee of Rs 2,000 via UPI within 24 hours. Limited seats only. Send your Aadhaar and bank details on WhatsApp."
+      : "Hi Priya, thank you for interviewing with Acme Robotics. We would like to offer you a 3-month software internship. Stipend Rs 15,000 per month. There is no fee of any kind. Please reply to accept, and our HR team will share joining details.";
+  }
+  $("sender").value = sender; $("company").value = company; $("url").value = "";
 }
 $("fake").onclick = () => loadSample("fake_offer.txt", "tcs.careers.hr@gmail.com", "TCS");
 $("real").onclick = () => loadSample("genuine_offer.txt", "meera@acmerobotics.in", "Acme Robotics Pvt Ltd");
 
 $("go").onclick = async () => {
   $("err").textContent = ""; $("go").disabled = true; $("go").textContent = "Checking...";
+  if (![$("text").value.trim(), $("url").value.trim(), $("sender").value.trim()].some(Boolean)) {
+    $("err").textContent = "Paste offer text or add a link or sender email first.";
+    $("go").disabled = false; $("go").textContent = "Check this offer"; return;
+  }
   try {
+    if (STATIC_DEMO) throw new Error("Use the local demo checker");
     const res = await post("/api/analyze", { text: $("text").value, url: $("url").value || null,
       sender_email: $("sender").value || null, company: $("company").value || null });
     if (!res.ok) throw new Error(errText(res, "Please check your input."));
     render(res.data);
-  } catch (e) { $("err").textContent = e.message; }
+  } catch {
+    render(localAssessment({ text: $("text").value, url: $("url").value, sender_email: $("sender").value, company: $("company").value }));
+  }
   finally { $("go").disabled = false; $("go").textContent = "Check this offer"; }
 };
+
+function localAssessment(input) {
+  const text = [input.text, input.url, input.sender_email, input.company].filter(Boolean).join(" ");
+  const checks = [
+    [/\b(fee|pay|payment|deposit|registration|training fee|refundable|security amount|processing charge|upi)\b|₹\s?[\d,]+|\b(?:rs\.?|inr)\s?[\d,]+/i, 36, "An upfront payment is mentioned"],
+    [/\b(urgent|today|within \d+ hours?|expires? in|limited seats?|last chance|act now|immediately|hurry)\b/i, 18, "The offer pressures you to act quickly"],
+    [/@(?:gmail|yahoo|outlook|hotmail|rediffmail)\./i, 16, "A personal email address is used"],
+    [/\b(no experience required|guaranteed job|high income|easy money|selected without interview|100% placement)\b/i, 15, "The promise sounds unusually generous"],
+    [/\b(otp|one.time password|aadhaar|aadhar|pan card|bank details|cvv|password)\b/i, 20, "Sensitive information is requested"],
+    [/https?:\/\/[^\s]+/i, 8, "A link is included; verify its domain before opening it"],
+  ];
+  const reasons = checks.filter(([pattern]) => pattern.test(text)).map(([, points, label]) => ({ label, points }));
+  const score = Math.min(100, reasons.reduce((sum, reason) => sum + reason.points, 8));
+  const level = score >= 60 ? "HIGH" : score >= 30 ? "MEDIUM" : "LOW";
+  return {
+    score, level,
+    recommendation: level === "HIGH" ? "Do not pay or share details. Verify through the company's official website." : level === "MEDIUM" ? "Pause and verify the recruiter and company independently." : "Few common warning signs found. This does not prove the offer is genuine.",
+    reasons: reasons.map(({ label }) => ({ label })),
+    unavailable_checks: ["Live domain and company checks are unavailable in this hosted demo"],
+    safe_alternatives: [],
+  };
+}
 
 function render(d) {
   lastScan = { score: d.score, level: d.level, reasons: d.reasons.map((r) => r.label).slice(0, 12) };
@@ -285,6 +326,7 @@ $("prep").onclick = async () => {
   if (body.what_happened.length < 10) { $("cErr").textContent = "Please describe what happened (at least a sentence)."; return; }
   $("prep").disabled = true;
   try {
+    if (STATIC_DEMO) throw new Error("Use local complaint preparation");
     const res = await post("/api/complaint", body);
     if (!res.ok) throw new Error(errText(res, "Could not prepare the complaint. Please shorten the text and try again."));
     const d = res.data; portal = d.portal_url; reportEmail = d.report_email || "";
@@ -292,7 +334,24 @@ $("prep").onclick = async () => {
     $("urgent").classList.toggle("hidden", !d.urgent);
     $("steps").replaceChildren(...d.steps.map((s) => el("li", s)));
     $("cOut").classList.remove("hidden"); $("cOut").scrollIntoView({ behavior: "smooth" });
-  } catch (e) { $("cErr").textContent = e.message; }
+  } catch {
+    const urgent = Boolean(body.amount_lost.trim()) || /\b(paid|sent money|transferred|shared.*(otp|bank|aadhaar|aadhar|pan))\b/i.test(body.what_happened);
+    const fields = [
+      ["Incident description", body.what_happened], ["Company / name used", body.scammer_company],
+      ["Contact details", body.scammer_contact], ["Date", body.incident_date], ["Amount lost (INR)", body.amount_lost],
+      ["Payment method", body.payment_method], ["Transaction ID / UTR", body.transaction_id],
+      ["Your name", body.your_name], ["Your phone", body.your_phone], ["Your email", body.your_email],
+    ].filter(([, value]) => value);
+    const complaint = ["To: National Cyber Crime Reporting Portal", "Subject: Report of suspected internship scam", "", ...fields.map(([label, value]) => `${label}: ${value}`), "", "I request that this incident be recorded and reviewed. I can provide supporting messages, payment receipts, and other evidence if required."].join("\n");
+    const steps = urgent
+      ? ["Call 1930 now if money was sent; also alert your bank or UPI provider.", "Save messages, payment receipts, URLs, and transaction details.", "Open cybercrime.gov.in, sign in, and submit the complaint yourself."]
+      : ["Save the offer, sender details, and any screenshots.", "Open cybercrime.gov.in, sign in, and submit the complaint yourself."];
+    const d = { complaint, urgent, portal_url: "https://cybercrime.gov.in/", report_email: "", steps };
+    portal = d.portal_url; reportEmail = ""; $("cText").value = d.complaint;
+    $("urgent").classList.toggle("hidden", !d.urgent);
+    $("steps").replaceChildren(...d.steps.map((s) => el("li", s)));
+    $("cOut").classList.remove("hidden"); $("cOut").scrollIntoView({ behavior: "smooth" });
+  }
   finally { $("prep").disabled = false; }
 };
 $("cCopy").onclick = async () => { try { await navigator.clipboard.writeText($("cText").value); $("cCopy").textContent = "Copied"; } catch { $("cText").select(); $("cCopy").textContent = "Press Ctrl+C"; } };
@@ -321,6 +380,7 @@ function drawPlatforms() {
 }
 async function loadPlatforms() {
   try {
+    if (STATIC_DEMO) throw new Error("Use the hosted platform directory");
     const d = await (await fetch("/api/platforms")).json();
     allPlatforms = d.platforms;
     const types = ["All", ...new Set(allPlatforms.map((p) => p.type))];
@@ -328,7 +388,27 @@ async function loadPlatforms() {
       const b = el("button", t, "chip" + (t === filter ? " on" : "")); b.onclick = () => { filter = t; loadFilters(types); drawPlatforms(); }; return b; }));
     $("tips").replaceChildren(...d.tips.map((t) => el("li", t)));
     drawPlatforms();
-  } catch { $("plat").textContent = "Could not load the platform list."; }
+  } catch {
+    const data = {
+      platforms: [
+        { name: "PM Internship Scheme", url: "https://pminternship.mca.gov.in", type: "Government", note: "Official Ministry of Corporate Affairs scheme." },
+        { name: "AICTE Internship Portal", url: "https://internship.aicte-india.org", type: "Government", note: "National internship portal for students." },
+        { name: "National Career Service", url: "https://www.ncs.gov.in", type: "Government", note: "Government job and internship portal." },
+        { name: "Internshala", url: "https://internshala.com", type: "Private", note: "Indian internship listings. Applying is free." },
+        { name: "LinkedIn Jobs", url: "https://www.linkedin.com/jobs", type: "Private", note: "Verify the company and recruiter before replying." },
+        { name: "Unstop", url: "https://unstop.com/jobs-and-internships", type: "Private", note: "Browse current internships and student opportunities." },
+        { name: "Indeed India", url: "https://in.indeed.com", type: "Private", note: "Search jobs and internships in India." },
+        { name: "Forage", url: "https://www.theforage.com", type: "Virtual experience", note: "Free virtual job simulations." },
+      ],
+      tips: ["Never pay a fee or deposit to get selected.", "Type the company website yourself instead of trusting message links.", "Check that the recruiter email domain matches the company.", "Verify the opportunity on the company's official careers page."],
+    };
+    allPlatforms = data.platforms;
+    const types = ["All", ...new Set(allPlatforms.map((p) => p.type))];
+    $("filters").replaceChildren(...types.map((t) => {
+      const b = el("button", t, "chip" + (t === filter ? " on" : "")); b.onclick = () => { filter = t; loadFilters(types); drawPlatforms(); }; return b; }));
+    $("tips").replaceChildren(...data.tips.map((t) => el("li", t)));
+    drawPlatforms();
+  }
 }
 function loadFilters(types) { [...$("filters").children].forEach((b, i) => b.className = "chip" + (types[i] === filter ? " on" : "")); }
 const kw = () => encodeURIComponent(($("kw").value.trim() || "software") + " intern");
@@ -354,12 +434,29 @@ async function send(text) {
   $("chatIn").value = ""; addMsg(text, "me"); history.push({ role: "user", content: text });
   const wait = addMsg("...", "bot"); $("chatSend").disabled = true;
   try {
+    if (STATIC_DEMO) throw new Error("Use local help mode");
     const res = await post("/api/chat", { messages: history.slice(-10), context: lastScan });
     if (!res.ok) throw new Error(errText(res, "Sorry, I could not answer. If this is urgent call 1930."));
     wait.textContent = res.data.reply; history.push({ role: "assistant", content: res.data.reply });
     $("mode").textContent = res.data.mode === "llm" ? "AI answer. Not legal advice." : "Basic help mode (AI is not configured on this server). In an emergency call 1930.";
-  } catch (e) { wait.textContent = e.message; history.pop(); }
+  } catch {
+    wait.textContent = localChatReply(text);
+    history.push({ role: "assistant", content: wait.textContent });
+    $("mode").textContent = "Basic demo help. For emergencies call 1930.";
+  }
   finally { $("chatSend").disabled = false; $("msgs").scrollTop = $("msgs").scrollHeight; }
+}
+function localChatReply(message) {
+  const text = message.toLowerCase();
+  if (/already paid|paid money|sent money|transferred|lost money|shared.*(otp|aadhaar|aadhar|pan|bank|password)/i.test(text))
+    return "If you sent money or shared an OTP or bank details, contact your bank now and call 1930. Save messages and receipts, then use the Cybersecurity Help box on this page to prepare a report for the official portal.";
+  if (/report|complain|cybercrime/i.test(text))
+    return "Use the Cybersecurity Help box on this page to prepare your complaint. Review it, then submit it yourself at cybercrime.gov.in. OwlEye cannot file it for you.";
+  if (/intern|job|platform|listing|where.*find|search/i.test(text))
+    return "Browse the curated government and job-platform links in Find Your Next Opportunity. You can also open current listings on Unstop. Verify every employer independently and never pay to be selected.";
+  if (/fee|pay|deposit|registration/i.test(text))
+    return "Pause and do not pay. Genuine internships should not require a registration, training, or security fee. Verify the offer on the company’s official careers page and run it through the checker.";
+  return "Tell me what the recruiter asked you to do. Don’t share an OTP, password, card details, or identity numbers here. If money was taken, call 1930 and contact your bank.";
 }
 </script>
 </body>
