@@ -139,8 +139,10 @@
   </section>
 
   <section class="card wide" id="report" aria-label="Report a scam">
-    <h2>Report a scam</h2>
-    <p class="sub">Describe what happened. OwlEye prepares a complete complaint you can send to the national cyber-crime portal or helpline 1930.</p>
+    <div class="eyebrow"><span class="eyebrow-number">02</span> CYBERSECURITY HELP</div>
+    <h2>Get help and prepare a report.</h2>
+    <p class="sub">Tell us what happened and OwlEye will prepare a complaint you can review and submit through the official cybercrime portal.</p>
+    <div class="cyber-help"><span class="cyber-shield" aria-hidden="true">!</span><div><b>Need urgent help?</b><p>If you sent money or shared an OTP, contact your bank and call the national cyber fraud helpline now.</p></div><a class="cyber-call" href="tel:1930">Call 1930 <span aria-hidden="true">↗</span></a><a class="cyber-portal" href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">Official portal <span aria-hidden="true">↗</span></a></div>
     <label for="c_what">What happened? (required)</label>
     <textarea id="c_what" placeholder="E.g. I got an offer on WhatsApp from 'TCS HR', they asked for Rs 2,000 registration fee and I paid..."></textarea>
     <div class="grid2">
@@ -162,31 +164,33 @@
       <textarea id="cText" style="min-height:260px"></textarea>
       <div class="row">
         <button class="primary" id="cCopy">Copy complaint</button>
-        <a class="btn ghost" id="cPortal" target="_blank" rel="noopener noreferrer" href="https://cybercrime.gov.in">Open cybercrime.gov.in</a>
+        <a class="btn ghost" id="cPortal" target="_blank" rel="noopener noreferrer" href="https://cybercrime.gov.in/">Review and submit on official portal</a>
         <a class="btn danger" id="cCall" href="tel:1930">Call 1930</a>
         <a class="btn ghost" id="cMail" href="#">Email it</a>
         <button class="ghost" id="cDl">Download .txt</button>
       </div>
       <div class="note"><b>Next steps</b><ol id="steps"></ol>
-        OwlEye cannot file on the government portal for you, because it needs your own login and OTP. Everything is ready to paste.</div>
+        For your safety, OwlEye does not send reports or personal details automatically. Review your complaint, then submit it yourself on the official portal using your own login and OTP.</div>
     </div>
     <p id="cErr" class="hint" style="color:var(--red)"></p>
   </section>
 
   <section class="card wide" id="genuine" aria-label="Genuine internships">
-    <h2>Find genuine internships</h2>
-    <p class="sub">Official and well-known platforms. Even on genuine platforms, never pay to be selected.</p>
+    <div class="eyebrow"><span class="eyebrow-number">03</span> FIND YOUR NEXT OPPORTUNITY</div>
+    <h2>Explore internships on trusted platforms.</h2>
+    <p class="sub">Browse curated government and well-known internship platforms below, or open live listings and search by your interests. Always verify the employer and never pay to be selected.</p>
     <div class="grid2" style="margin-top:6px">
       <div><label for="kw">What kind of internship? (e.g. python, data analyst, civil)</label><input id="kw" placeholder="python"></div>
       <div class="row" style="margin-top:34px">
         <button class="primary" id="sLi">Search on LinkedIn</button>
         <button class="ghost" id="sIn">Search on Indeed</button>
+        <button class="ghost" id="sUnstop">Browse live listings on Unstop</button>
       </div>
     </div>
     <div class="chips" id="filters"></div>
     <div class="plat" id="plat"></div>
     <ul class="list" id="tips"></ul>
-    <p class="hint">Links open the platform's own site. Live listings are not copied into OwlEye; this list is curated, not an endorsement.</p>
+    <p class="hint">Links open the platform's own site. OwlEye does not copy or verify individual live listings; check each company independently before applying.</p>
   </section>
 </main>
 
@@ -330,15 +334,16 @@ function loadFilters(types) { [...$("filters").children].forEach((b, i) => b.cla
 const kw = () => encodeURIComponent(($("kw").value.trim() || "software") + " intern");
 $("sLi").onclick = () => window.open("https://www.linkedin.com/jobs/search/?keywords=" + kw(), "_blank", "noopener");
 $("sIn").onclick = () => window.open("https://in.indeed.com/jobs?q=" + kw().replace(/%20/g, "+"), "_blank", "noopener");
+$("sUnstop").onclick = () => window.open("https://unstop.com/jobs-and-internships", "_blank", "noopener");
 loadPlatforms();
 
 /* ---------- chat ---------- */
 const history = [];
-const QUICK = ["I already paid money", "Is this company real?", "How do I report this?", "Where can I find real internships?"];
+const QUICK = ["I got an internship offer", "I paid or shared personal details", "Help me report a scam", "Find current internships"];
 function addMsg(text, who) { const m = el("div", text, "m " + who); $("msgs").append(m); $("msgs").scrollTop = $("msgs").scrollHeight; return m; }
 function openChat(open) {
   $("chat").classList.toggle("hidden", !open); $("chatBtn").setAttribute("aria-expanded", open);
-  if (open && !$("msgs").children.length) addMsg("Hi! I'm the OwlEye assistant. Tell me what happened with your internship offer.", "bot");
+  if (open && !$("msgs").children.length) addMsg("Hi! Have you had a problem with an internship offer? Did someone ask you to pay, or have you already paid or shared personal details? Choose an option below, or tell me what happened. I can also help you find internship listings.", "bot");
   if (open) $("chatIn").focus();
 }
 $("chatBtn").onclick = () => openChat($("chat").classList.contains("hidden"));

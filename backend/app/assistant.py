@@ -79,7 +79,7 @@ _SHARED = re.compile(r"(shared|sent|gave|given|uploaded|told|submitted).{0,30}(a
 _FEE = re.compile(r"\bpay\b|\bfee\b|deposit|charges?|refundable|registration|security amount", re.I)
 _REPORT = re.compile(r"report|complain|police|cyber|file (a )?case|fir\b", re.I)
 _VERIFY = re.compile(r"verify|genuine|real\b|legit|fake|company|trust|check", re.I)
-_PLATFORM = re.compile(r"platform|where.*(apply|find|search)|website|safe internship|real internship|link", re.I)
+_PLATFORM = re.compile(r"platform|where.*(apply|find|search)|find.*intern|current intern|website|safe internship|real internship|link", re.I)
 _HELLO = re.compile(r"^\s*(hi|hello|hey|help|namaste)\b", re.I)
 
 LINES = {
@@ -98,7 +98,7 @@ LINES = {
     "verify": ("To verify an offer: 1) type the company's website yourself and find the careers page; 2) check the "
                "sender's email domain matches the company; 3) look up the company on LinkedIn and the MCA website "
                "(mca.gov.in); 4) never pay. Paste the offer into the checker for a risk score."),
-    "platform": "Genuine places to look: " + ", ".join(p["name"] for p in PLATFORMS[:6]) + ". See 'Find genuine internships' on this page for links.",
+    "platform": "Genuine places to look: " + ", ".join(p["name"] for p in PLATFORMS[:6]) + ". See 'Find genuine internships' on this page for links, or browse current listings at https://unstop.com/jobs-and-internships. Verify each employer independently and never pay to be selected.",
     "hello": "Hi! I can help if you got a suspicious internship offer, already paid or shared details, or want to find genuine internships. What happened?",
     "default": ("I can help with suspicious internship offers. Try: 'I already paid', 'Is this company real?', "
                 "'How do I report?' or 'Where can I find real internships?'. In an emergency call 1930."),
