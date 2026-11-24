@@ -1,80 +1,54 @@
-# OwlEye
+# OwlEye 🦉 — See through fake internships.
 
-**See through fake internships.**
-OwlEye is an AI-agent-style checker that investigates an internship offer *before* a student applies or pays: it reads the message, checks the link and sender, explains the risk in plain language, and drafts a cybercrime complaint.
+Paste an internship offer (email, WhatsApp, offer letter). OwlEye gives a **risk score with reasons** before you apply or pay, helps you **report scams**, and points you to **genuine internship platforms**.
 
-Built by team **Night Coders** (Bapuji Institute of Engineering and Technology) for **wHACKiest 2026**, the online ideathon hosted by Ramaiah Institute of Technology.
-Pitch deck: [`docs/NightCoders_OwlEye_Pitch.pptx`](docs/NightCoders_OwlEye_Pitch.pptx)
+Team **Night Coders** · Bapuji Institute of Engineering and Technology · wHACKiest 2026
 
-## The problem
-Students can't tell a real internship from a fake one until after they've paid. Telangana Police reported 26,809 fake-job scam cases in about 20 months (Jan 2024 to Aug 2025). Existing options (report buttons, generic URL scanners, awareness drives) are reactive: none verifies the offer, explains the risk and helps the student act in the moment.
-
-## What the prototype does today
-Paste an offer (text, optional link, sender email, company) and get a **0-100 risk score with evidence-based reasons**.
-
-| Check | Examples of what it catches |
+## Features
+| Feature | What it does |
 |---|---|
-| Message text | "registration / refundable fee", UPI payment demands, "no interview", guaranteed placement, Aadhaar / bank details up front, urgency ("within 24 hours"), moves to WhatsApp / Telegram, unrealistic stipend |
-| Link | look-alike brand domains (e.g. `tcs-internship-...xyz`), raw IP, URL shorteners, punycode, throw-away TLDs, no HTTPS |
-| Sender | brand claimed but free-mail or non-official domain, domain doesn't match company |
-| Live lookups (best effort) | domain age via RDAP, TLS certificate validity. If a lookup fails it adds **no** risk and is listed as "could not verify" |
-| Output | score + level, reasons with the exact text found, advice, and a complaint draft for cybercrime.gov.in / helpline 1930 |
+| Offer checker | Heuristic signals (fees, personal-mail "HR", urgency, shared-account payments, bad links, domain age, TLS) combined into a 0–100 score: LOW / MEDIUM / HIGH |
+| AI assistant | Chat widget for victims and doubters. Uses Claude when `ANTHROPIC_API_KEY` is set, otherwise a basic rule-based helper |
+| Report a scam | Builds a paste-ready complaint for **cybercrime.gov.in** / helpline **1930**, with Copy, Open portal, Call, Email and Download buttons |
+| Genuine platforms | Curated official and well-known portals (PM Internship Scheme, AICTE, NCS, Internshala, LinkedIn, Unstop, ...) plus keyword search links |
 
-**Scoring:** each signal is an independent risk probability; they are combined with a noisy-OR (`1 - prod(1 - w)`), so several weak signals compound but never exceed 100. Levels: LOW 0-24, MEDIUM 25-54, HIGH 55+.
+**Honest limits:** OwlEye cannot file on the government portal for you (it needs your own login and OTP, and there is no public API). It prepares everything and hands off. Platform list is curated links, not a live feed. Scores are estimates, not proof.
 
-## Pitch vs prototype (honest status)
-| Feature in the pitch | Status |
-|---|---|
-| Rule-based red-flag engine, explainable score | Built |
-| URL, sender and brand-impersonation checks | Built |
-| Domain age (RDAP) and TLS checks | Built (best effort) |
-| Complaint draft (cybercrime.gov.in / 1930) | Built |
-| Web UI | Built |
-| LLM tool-calling agent (decides which checks to run) | Planned |
-| MCA company-registry lookup | Planned |
-| Offer-letter PDF parsing and forged-letterhead check | Planned |
-| Vector "scam memory" learning from confirmed reports | Planned |
-| Chrome extension for LinkedIn / Internshala / Naukri | Planned |
-| Safe-internship recommendations, Hindi / Kannada, WhatsApp bot | Planned |
-
-## Architecture
-```mermaid
-flowchart LR
-  U[Student: link, text or PDF] --> UI[Web app / Chrome ext]
-  UI --> API[FastAPI]
-  API --> T[Text red-flag engine]
-  API --> L[Link + sender checks]
-  API --> N[RDAP + TLS lookups]
-  T --> R[Risk engine: noisy-OR 0-100]
-  L --> R
-  N --> R
-  R --> O[Score + reasons + complaint draft]
+## Run on Windows
+1. Install Python 3.10+ from python.org (tick "Add to PATH").
+2. Double-click `run_windows.bat`, or in a terminal:
 ```
-The design principle is **evidence first**: the score comes from verifiable signals, so every verdict is explainable. An LLM layer will later decide *which* checks to run and polish explanations, not invent the verdict.
+py -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn backend.app.main:app --port 8000
+```
+3. Open http://localhost:8000
 
-## Run it
-```bash
-python -m venv .venv && source .venv/bin/activate
+## Run on Mac / Linux
+```
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn backend.app.main:app --port 8000
+```
+
+## Settings (environment variables)
+- `ANTHROPIC_API_KEY` — turn on the AI chat (optional)
+- `OWLEYE_MODEL` — model for chat (default `claude-haiku-5-5`)
+- `OWLEYE_REPORT_EMAIL` — address for the "Email it" button (e.g. your college cyber cell)
+- `OWLEYE_OFFLINE=1` — skip live domain/TLS lookups
+
+Windows example: `set ANTHROPIC_API_KEY=your-key` then run the bat file.
+
+## Tests
+```
 pip install -r requirements-dev.txt
-uvicorn backend.app.main:app --reload      # open http://localhost:8000
-pytest                                     # run the tests
+pytest -q
 ```
-Docker: `docker build -t owleye . && docker run -p 8000:8000 owleye`
-Set `OWLEYE_OFFLINE=1` to disable live network lookups.
 
-### API
-```bash
-curl -X POST localhost:8000/api/analyze -H 'content-type: application/json' -d '{
-  "text": "Pay a refundable registration fee of Rs 2000 within 24 hours",
-  "sender_email": "tcs.hr@gmail.com", "company": "TCS"}'
-```
-Fields: `text`, `url`, `sender_email`, `company`, `live` (all optional, at least one of `text`/`url`/`sender_email`). Interactive docs at `/docs`.
+## API
+`POST /api/analyze` · `POST /api/chat` · `POST /api/complaint` · `GET /api/platforms` · `GET /api/health` (docs at `/docs`)
 
-## Safety and limits
-- Output is a **heuristic estimate, not proof of fraud**; the UI says so.
-- Nothing is stored. The server never connects to private/internal addresses (SSRF guard).
-- The brand list is a small demo set; a real deployment needs a registry lookup.
-- No rate limiting or auth yet; add both before exposing publicly.
+Chat is rate-limited to 20 messages/min per IP (behind a proxy, configure forwarded IPs). Nothing is stored.
 
-## Team
-Night Coders: Rishabh (lead), Rakesh. Bapuji Institute of Engineering and Technology.
+Pitch deck: `docs/NightCoders_OwlEye_Pitch.pptx` · License: MIT

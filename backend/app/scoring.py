@@ -5,6 +5,7 @@ from dataclasses import asdict
 from math import prod
 
 from . import checks
+from .platforms import PLATFORMS
 from .report import draft_complaint
 
 LOW_MAX, MEDIUM_MAX = 24, 54  # 0-24 LOW, 25-54 MEDIUM, 55+ HIGH
@@ -68,6 +69,7 @@ def analyze(text: str = "", url: str | None = None, sender_email: str | None = N
         "reasons": [asdict(s) for s in ranked],
         "unavailable_checks": unavailable,
         "recommendation": ADVICE[level],
+        "safe_alternatives": [{"name": p["name"], "url": p["url"], "type": p["type"]} for p in PLATFORMS[:6]] if level != "LOW" else [],
         "disclaimer": "Heuristic risk estimate based on the details you provided, not proof of fraud.",
     }
     result["report_draft"] = draft_complaint(result, {"text": text, "url": url, "sender_email": sender_email, "company": company}) if level != "LOW" else None
