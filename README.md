@@ -23,7 +23,6 @@ py -m venv .venv
 pip install -r requirements.txt
 python -m uvicorn backend.app.main:app --port 8000
 ```
-3. Open http://localhost:8000
 
 ## Run on Mac / Linux
 ```
