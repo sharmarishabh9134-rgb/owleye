@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OwlEye</title>
+<meta name="theme-color" content="#f6f7f2">
+<meta name="description" content="Check internship offers for scam warning signs before you apply or pay. Free, private, and built for students.">
+<title>OwlEye — Spot the offer. Skip the scam.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root { --navy:#14284f; --ink:#0b1630; --orange:#f58a1f; --cream:#fbf6e9; --card:#fff; --muted:#5a6479;
           --red:#e5484d; --amber:#d98a00; --green:#17986f; --soft:#f6f7fb; }
@@ -70,12 +75,29 @@
   #chat .chips { padding:0 12px 8px; margin:0; background:var(--soft); }
   #mode { font-size:.72rem; color:var(--muted); padding:0 12px 6px; background:var(--soft); }
 </style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<header>
-  <h1>Owl<span>Eye</span></h1>
-  <p>Paste an internship offer. Get a risk score with reasons before you apply or pay.</p>
-  <nav><a href="#check">Check an offer</a><a href="#report">Report a scam</a><a href="#genuine">Find genuine internships</a></nav>
+<header class="site-header" id="top">
+  <div class="topline">
+    <a class="brand" href="#top" aria-label="OwlEye home"><span class="brand-mark" aria-hidden="true">◉</span><span>owl<span>eye</span></span></a>
+    <nav class="main-nav" aria-label="Main navigation"><a href="#check">Offer checker</a><a href="#report">Report a scam</a><a href="#genuine">Find internships</a></nav>
+    <a class="header-cta" href="#check">Check an offer <span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="hero-layout">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="live-dot"></span> YOUR FIRST LINE OF DEFENCE</div>
+      <h1>That internship<br>offer <em>feels off?</em></h1>
+      <p>Before you share your details or send a rupee, let OwlEye take a closer look. Spot the warning signs and make your next move with confidence.</p>
+      <div class="hero-actions"><a class="button button-dark" href="#check">Check an offer <span aria-hidden="true">↓</span></a><a class="hero-link" href="#how-it-works">See how it works <span aria-hidden="true">→</span></a></div>
+      <div class="trust-line"><span>◎</span> Your offer stays private <i></i> Made for students, by students</div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="hero-spark">✳</span>
+      <div class="preview-card"><div class="preview-head"><span>◉ &nbsp; OWLEYE SCAN</span><small><i></i> LIVE DEMO</small></div><div class="preview-offer"><span class="preview-logo">N</span><span><b>NextGen Solutions</b><small>Internship offer · received today</small></span><span class="dots">•••</span></div><div class="preview-score"><span><small>RISK ASSESSMENT</small><b>Needs a closer look</b><small>A few things deserve your attention.</small></span><strong>68<small>/100</small></strong></div><div class="preview-rule"></div><div class="preview-flag"><b>!</b><span><strong>Upfront training fee</strong><small>Legitimate internships don’t ask you to pay to join.</small></span></div><div class="preview-flag"><b>@</b><span><strong>Personal email address</strong><small>The recruiter isn’t using a company domain.</small></span></div><div class="preview-foot">OwlEye checks signals, not promises.</div></div>
+      <div class="float-note note-a"><b>✦ &nbsp; Trust your gut.</b><small>Then check the facts.</small></div><div class="float-note note-b"><b>✓ &nbsp; Think before you pay.</b><small>One quick check can help.</small></div>
+    </div>
+  </div>
 </header>
 <main>
   <section class="card" id="check" aria-label="Offer details">
@@ -108,6 +130,12 @@
       <div class="row"><button class="danger hidden" id="toReport">Report this offer</button></div>
     </div>
     <p id="err" class="hint" style="color:var(--red)"></p>
+  </section>
+
+  <section class="card wide how-card" id="how-it-works" aria-label="How OwlEye works">
+    <div class="eyebrow"><span class="eyebrow-number">01</span> SIMPLE, QUICK, PRIVATE</div>
+    <h2>Three steps to a clearer picture.</h2>
+    <div class="how-grid"><article><span>01</span><h3>Paste the offer</h3><p>Copy the message or offer letter. You can remove personal details first.</p></article><article><span>02</span><h3>Check the signals</h3><p>OwlEye checks for common red flags like fees, urgency, and suspicious contact details.</p></article><article><span>03</span><h3>Choose your next step</h3><p>See why something looks risky and where you can verify it safely.</p></article></div>
   </section>
 
   <section class="card wide" id="report" aria-label="Report a scam">
@@ -162,6 +190,8 @@
   </section>
 </main>
 
+<footer class="site-footer"><div class="footer-main"><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true">◉</span><span>owl<span>eye</span></span></a><p>Helping students make safer moves<br>toward their first opportunity.</p><nav aria-label="Footer navigation"><a href="#check">Check an offer</a><a href="#report">Get help</a><a href="#genuine">Find internships</a></nav></div><div class="footer-bottom"><span>© <span id="year"></span> OwlEye · Built for students</span><span>Be curious. Be careful. Keep going. <b>✳</b></span></div></footer>
+
 <button id="chatBtn" class="primary" aria-expanded="false" aria-controls="chat">Ask OwlEye</button>
 <div id="chat" class="hidden" role="dialog" aria-label="OwlEye assistant">
   <header><b>OwlEye assistant</b><button id="chatX" aria-label="Close chat">&times;</button></header>
@@ -173,6 +203,7 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
+$("year").textContent = new Date().getFullYear();
 const COLORS = { HIGH: "var(--red)", MEDIUM: "var(--amber)", LOW: "var(--green)" };
 let lastScan = null;
 
