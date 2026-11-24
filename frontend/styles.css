@@ -99,3 +99,20 @@ main{color:#eef4ff}
 @keyframes pixel-flicker{0%,82%,100%{opacity:.95;transform:translateY(0)}86%{opacity:.42;transform:translateY(-2px)}92%{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.hero-art::before,.hero-art::after,.hero-spark{animation:none}}
 .preview-card>*{position:relative;z-index:3}
+
+/* Expanded pixel interface details */
+body{background-image:radial-gradient(rgba(86,168,255,.2) 1px,transparent 1.5px),radial-gradient(rgba(255,49,85,.12) 1px,transparent 1.5px),radial-gradient(ellipse at 79% 12%,rgba(21,63,118,.22),transparent 33%);background-color:#070b14;background-size:24px 24px,32px 32px,auto;background-position:0 0,12px 14px,center;}
+.card{position:relative;isolation:isolate;overflow:hidden;background-image:linear-gradient(rgba(86,168,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(86,168,255,.025) 1px,transparent 1px),linear-gradient(145deg,#111b2b,#0d1523);background-size:18px 18px,18px 18px,auto}
+.card>*{position:relative;z-index:1}
+.card::before,.card::after{content:"";position:absolute;width:5px;height:5px;z-index:0;pointer-events:none;background:#56a8ff;box-shadow:7px 0 rgba(86,168,255,.68),14px 0 rgba(86,168,255,.38),0 7px rgba(86,168,255,.72),7px 7px #56a8ff,14px 7px rgba(86,168,255,.52),7px 14px rgba(86,168,255,.58)}
+.card::before{top:14px;right:14px}
+.card::after{left:14px;bottom:14px;transform:rotate(180deg);opacity:.55}
+#check{background-image:linear-gradient(rgba(86,168,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(86,168,255,.035) 1px,transparent 1px),linear-gradient(145deg,#101f35,#0c1627)}
+#report::before,#report::after{background:#ff3155;box-shadow:7px 0 rgba(255,49,85,.7),14px 0 rgba(255,49,85,.4),0 7px rgba(255,49,85,.75),7px 7px #ff3155,14px 7px rgba(255,49,85,.5),7px 14px rgba(255,49,85,.6)}
+.card textarea{background-image:linear-gradient(rgba(86,168,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(86,168,255,.035) 1px,transparent 1px);background-size:16px 16px}
+.card .primary,.button-dark,#chatBtn{border-radius:0;clip-path:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));box-shadow:3px 3px 0 rgba(86,168,255,.2)}
+.card .danger,.cyber-help .cyber-call{box-shadow:3px 3px 0 rgba(255,49,85,.3)}
+.preview-card::before{content:"";position:absolute;z-index:4;top:-5px;left:0;right:0;height:3px;background:#ff3155;box-shadow:0 0 14px rgba(255,49,85,.75);animation:pixel-scan 7s steps(28,end) infinite;pointer-events:none}
+.preview-card::after{opacity:.16;background-size:6px 6px}
+@keyframes pixel-scan{0%{transform:translateY(0)}85%,100%{transform:translateY(390px)}}
+@media(prefers-reduced-motion:reduce){.preview-card::before{animation:none;display:none}}
