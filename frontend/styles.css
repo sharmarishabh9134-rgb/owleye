@@ -118,3 +118,5 @@ body{background-image:radial-gradient(rgba(86,168,255,.2) 1px,transparent 1.5px)
 @media(prefers-reduced-motion:reduce){.preview-card::before{animation:none;display:none}}
 .demo-notice{margin:0 0 16px;padding:10px 12px;border:1px solid #2e4a6e;border-left:3px solid #56a8ff;background:#0b1930;color:#c4d8f1;font-size:9px;line-height:1.6}
 .demo-notice.hidden{display:none!important}
+
+.preview-card::before{content:none;display:none;animation:none;box-shadow:none}
