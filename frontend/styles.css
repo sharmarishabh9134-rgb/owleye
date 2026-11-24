@@ -112,11 +112,11 @@ body{background-image:radial-gradient(rgba(86,168,255,.2) 1px,transparent 1.5px)
 .card textarea{background-image:linear-gradient(rgba(86,168,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(86,168,255,.035) 1px,transparent 1px);background-size:16px 16px}
 .card .primary,.button-dark,#chatBtn{border-radius:0;clip-path:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));box-shadow:3px 3px 0 rgba(86,168,255,.2)}
 .card .danger,.cyber-help .cyber-call{box-shadow:3px 3px 0 rgba(255,49,85,.3)}
-.preview-card::before{content:"";position:absolute;z-index:4;top:-5px;left:0;right:0;height:3px;background:#ff3155;box-shadow:0 0 14px rgba(255,49,85,.75);animation:pixel-scan 7s steps(28,end) infinite;pointer-events:none}
+
 .preview-card::after{opacity:.16;background-size:6px 6px}
-@keyframes pixel-scan{0%{transform:translateY(0)}85%,100%{transform:translateY(390px)}}
-@media(prefers-reduced-motion:reduce){.preview-card::before{animation:none;display:none}}
+
+
 .demo-notice{margin:0 0 16px;padding:10px 12px;border:1px solid #2e4a6e;border-left:3px solid #56a8ff;background:#0b1930;color:#c4d8f1;font-size:9px;line-height:1.6}
 .demo-notice.hidden{display:none!important}
 
-.preview-card::before{content:none;display:none;animation:none;box-shadow:none}
+.preview-card::before{content:none!important;display:none!important;animation:none!important;background:none!important;box-shadow:none!important}
